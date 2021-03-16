@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: terraspinplanjob
+  namespace: default
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 240
+  template:
+    spec:
+      containers:
+        - command:
+           - bash
+           - PlanRun.sh
+          env:
+            - name: tfScriptArtifactAccount
+              value: '${parameters.tfScriptArtifactAccount}'
+            - name: plan
+              value: '${parameters.plan}'
+            - name: variableOverrideFileRepo
+              value: '${parameters.variableOverrideFileRepo}'
+            - name: tfStateArtifactAccount
+              value: '${parameters.tfStateArtifactAccount}'
+            - name: stateRepo
+              value: '${parameters.stateRepo}'
+            - name: uuId
+              value: '${parameters.uuId}'
+            - name: component
+              value: plan
+          image: 'xxx'
+          imagePullPolicy: Always
+          name: terraspinplan
+          volumeMounts:
+            - mountPath: "/home/terraspin/opsmx/app/config/"
+              name: terraspin-backend-config
+      imagePullSecrets:
+        - name: artifact-registry-credentials
+      restartPolicy: Never
+      volumes:
+        - secret:
+            secretName: terraspin-backend-config
+          name: terraspin-backend-config
